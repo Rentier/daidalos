@@ -12,7 +12,9 @@
 #include <ti/sysbios/knl/Task.h>
 
 #include "led.h"
+#include "quadcopter.h"
 
+static quadcopter_t quadcopter;
 
 /*
  *  ======== taskFxn ========

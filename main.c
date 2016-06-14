@@ -10,15 +10,12 @@
 #include <ti/sysbios/BIOS.h>
 
 #include "clocks.h"
-#include "led.h"
 #include "quadcopter.h"
 
-static quadcopter_t quadcopter;
+quadcopter_t quadcopter;
 
 Int main() {
 	System_printf("Starting...\n");
-	init_led();
-	System_printf("LED initialized\n");
 
 	clock_mainloop_start();
 

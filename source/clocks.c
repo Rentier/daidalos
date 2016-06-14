@@ -2,14 +2,15 @@
 
 #include <xdc/runtime/System.h>
 
+#include <ti/sysbios/knl/Semaphore.h>
+
 #include "led.h"
+#include "semaphores.h"
 
 Void clock_mainloop_func(UArg arg0) {
-	System_printf("enter clock_mainloop_func\n");
+	System_printf("Tick: clock_mainloop_func\n");
 
-	toggle_led();
-
-	System_printf("exit clock_mainloop_func\n");
+	Semaphore_post(semaphore_mainloop);
 }
 
 void clock_mainloop_start(void) {

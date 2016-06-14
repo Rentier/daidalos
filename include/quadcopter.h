@@ -9,14 +9,14 @@
 #include "vec3f.h"
 
 typedef struct {
-	vec3f_t phi;	// Orientation in yaw, pitch, roll
-	vec3f_t phid;	// dPhi/dt
+	vec3f phi;	// Orientation in yaw, pitch, roll
+	vec3f phid;	// dPhi/dt
 
-	vec3f_t w;
+	vec3f w;
 
-	vec3f_t x;		// Position
-	vec3f_t xd;		// Velocity
-	vec3f_t xdd;	// Acceleration
+	vec3f x;		// Position
+	vec3f xd;		// Velocity
+	vec3f xdd;	// Acceleration
 
 	quaternion q;
 	quaternion qd;

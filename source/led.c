@@ -1,10 +1,5 @@
 #include "led.h"
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <file.h>
-
 #include "F28x_Project.h"
 
 void led_init() {

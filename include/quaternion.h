@@ -6,13 +6,12 @@ typedef struct {
 	float b;
 	float c;
 	float d;
-} quaternion_t ;
+} quaternion;
 
-quaternion_t quaternion_add(const quaternion_t q1, const quaternion_t q2);
-quaternion_t quaternion_mult(const quaternion_t q1, const quaternion_t q2);
+quaternion quaternion_add(const quaternion q1, const quaternion q2);
+quaternion quaternion_mult(const quaternion q1, const quaternion q2);
 
-
-void quaternion_print(const quaternion_t quaternion);
+void quaternion_print(const quaternion quaternion);
 
 
 #endif /* RMR_QUATERNION_H_ */

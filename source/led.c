@@ -7,11 +7,7 @@
 
 #include "F28x_Project.h"
 
-extern void DSP28x_usDelay(Uint32 Count);
-
-#pragma CODE_SECTION(InitFlash, "ramfuncs");
-
-void init_led() {
+void led_init() {
 	GPIO_EnableUnbondedIOPullups();
 
 	//Initialize GPIOs for the LEDs and turn them off
@@ -33,7 +29,7 @@ void init_led() {
 	GpioDataRegs.GPADAT.bit.GPIO13 = 1;
 }
 
-void toggle_led() {
+void led_toggle() {
 	GpioDataRegs.GPADAT.bit.GPIO12 = !GpioDataRegs.GPADAT.bit.GPIO12;
 	GpioDataRegs.GPADAT.bit.GPIO13 = !GpioDataRegs.GPADAT.bit.GPIO13;
 }

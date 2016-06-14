@@ -25,11 +25,11 @@ void task_imu_func(UArg a0, UArg a1) {
 
 void task_led_func(UArg a0, UArg a1) {
 	System_printf("Starting LED task\n");
-	init_led();
+	led_init();
 
 	while (1) {
 		Semaphore_pend(semaphore_mainloop, BIOS_WAIT_FOREVER);
 		System_printf("LED toggle\n");
-		toggle_led();
+		led_toggle();
 	}
 }

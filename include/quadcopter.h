@@ -14,14 +14,14 @@ typedef struct {
 
 	vec3f w;
 
-	vec3f x;		// Position
-	vec3f xd;		// Velocity
+	vec3f x;	// Position
+	vec3f xd;	// Velocity
 	vec3f xdd;	// Acceleration
 
 	quaternion q;
 	quaternion qd;
 
 	uint16_t channels[NUM_CHANNELS];
-} quadcopter_t ;
+} quadcopter_t;
 
 #endif /* RMR_QUADCOPTER_H_ */

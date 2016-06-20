@@ -12,8 +12,6 @@
 #include "clocks.h"
 #include "quadcopter.h"
 
-quadcopter_t quadcopter;
-
 Int main() {
 	System_printf("Starting...\n");
 

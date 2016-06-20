@@ -4,5 +4,6 @@
 #include <ti/sysbios/knl/Semaphore.h>
 
 extern Semaphore_Handle semaphore_mainloop;
+extern Semaphore_Handle semaphore_datafusion;
 
 #endif /* RMR_SEMAPHORES_H_ */

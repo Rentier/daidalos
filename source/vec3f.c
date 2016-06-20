@@ -1,6 +1,6 @@
 #include "vec3f.h"
 
-#include <stdio.h>
+#include <xdc/runtime/System.h>
 
 vec3f vec3f_add(const vec3f v1, const vec3f v2) {
 	vec3f result;
@@ -90,5 +90,5 @@ vec3f vec3f_neg(const vec3f v) {
 }
 
 void vec3f_print(const vec3f v) {
-	printf("(%.2f, %.2f, %.2f)\n", v.x, v.y, v.z);
+	System_printf("(%.2f, %.2f, %.2f)\n", v.x, v.y, v.z);
 }

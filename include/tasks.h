@@ -4,7 +4,7 @@
 #include <ti/sysbios/knl/Task.h>
 
 extern Task_Handle task_flush;
-// extern Task_Handle task_imu;
+extern Task_Handle task_imu;
 extern Task_Handle task_led;
 
 void task_flush_func(UArg a0, UArg a1);

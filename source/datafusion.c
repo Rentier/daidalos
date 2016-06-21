@@ -15,7 +15,6 @@ void datafusion_init() {
 	System_printf("Initializing data fusion\n");
 
 	memset( &cpu_to_cla, 0, sizeof( cpu_to_cla_ram ) );
-	memset( &cla_to_cpu, 0, sizeof( cla_to_cpu_ram ) );
 }
 
 void datafusion_fuse_pose(vec3f phi_old, vec3f w_old, vec3f acc, vec3f gyro) {

@@ -6,7 +6,6 @@
 #include "quadcopter.h"
 
 extern cpu_to_cla_ram cpu_to_cla;
-extern cla_to_cpu_ram cla_to_cpu;
 
 extern Imu imu;
 

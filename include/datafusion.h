@@ -4,7 +4,7 @@
 #include "vec3f.h"
 
 void datafusion_init();
-void datafusion_fuse_pose(vec3f gyro, vec3f acc);
+void datafusion_fuse_pose(vec3f phi_old, vec3f w_old, vec3f gyro, vec3f acc);
 void datafusion_fuse_position();
 
 #endif

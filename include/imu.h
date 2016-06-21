@@ -4,7 +4,8 @@
 #include "vec3f.h"
 
 typedef struct {
-	vec3f bias;
+	vec3f bias_acc;
+	vec3f bias_gyro;
 } Imu;
 
 void imu_init();

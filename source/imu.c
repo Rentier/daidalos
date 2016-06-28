@@ -92,7 +92,6 @@ void imu_read() {
 	cpu_to_cla.raw_gyro = vec3f_sadd(cpu_to_cla.raw_gyro, 1);
 }
 
-
 /*
  * Enable access to the embedded functions configuration registers from address 02h to 32h.
  * That option is neccessary to edit the named registers.
@@ -103,6 +102,7 @@ Bool imu_free_cfgregs() {
 		return false;
 	else
 		return true;
+	return imu_read_byte(0x01) == 128;
 }
 
 /*
@@ -127,7 +127,6 @@ Bool imu_block_cfgregs() {
  */
 char imu_read_byte(char reg) {
 	char value;
-	System_printf("IMU: Go into read_bytes \n");
 	imu_read_bytes(reg, &value, 1);
 	return value;
 }

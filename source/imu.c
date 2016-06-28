@@ -45,32 +45,31 @@ void imu_init_spia(uint16_t LSPCLK) {
 
 	CpuSysRegs.PCLKCR8.bit.SPI_A = 1;
 
-	GpioCtrlRegs.GPBMUX2.bit.GPIO61 = 0; // Configure GPIO61 as GPIO for SPIASTE
-	GpioCtrlRegs.GPBGMUX2.bit.GPIO61 = 0; // Configure GPIO61 as GPIO for SPIASTE
+	GpioCtrlRegs.GPBMUX2.bit.GPIO61 = 0; 	// Configure GPIO61 as GPIO for SPIASTE
+	GpioCtrlRegs.GPBGMUX2.bit.GPIO61 = 0; 	// Configure GPIO61 as GPIO for SPIASTE
 	GpioDataRegs.GPBDAT.bit.GPIO61 = 1;
-	GpioCtrlRegs.GPBDIR.bit.GPIO61 = 1;  // SPIASTE is an output!
+	GpioCtrlRegs.GPBDIR.bit.GPIO61 = 1;  	// SPIASTE is an output!
 	EDIS;
 
-	SpiaRegs.SPICCR.bit.SPISWRESET = 0; // Reset SPI for configuration
+	SpiaRegs.SPICCR.bit.SPISWRESET = 0; 	// Reset SPI for configuration
 
-	SpiaRegs.SPICCR.bit.CLKPOLARITY = 1; // Send on falling SPICLK edge
-	SpiaRegs.SPICCR.bit.HS_MODE = 1;	 // Highspeedmode AN
-	SpiaRegs.SPICCR.bit.SPICHAR = 0x7;	 // Sende 8 bit je Trigger
-	SpiaRegs.SPICCR.bit.SPILBK = 0;	// Loopback-Mode nur zu Testzwecken zu benutzen.
+	SpiaRegs.SPICCR.bit.CLKPOLARITY = 1; 	// Send on falling SPICLK edge
+	SpiaRegs.SPICCR.bit.HS_MODE = 1;	 	// Highspeedmode AN
+	SpiaRegs.SPICCR.bit.SPICHAR = 0x7;	 	// Sende 8 bit je Trigger
+	SpiaRegs.SPICCR.bit.SPILBK = 0;			// Loopback-Mode nur zu Testzwecken zu benutzen.
 
-	SpiaRegs.SPICTL.bit.CLK_PHASE = 1;// --> Individuel setup for  Send- /Recievestream (Tx:1/Rx:0)
+	SpiaRegs.SPICTL.bit.CLK_PHASE = 1;		// Individual setup for Send- /Recievestream (Tx:1/Rx:0)
 	SpiaRegs.SPICTL.bit.MASTER_SLAVE = 1;	// F28377S is Master
 	SpiaRegs.SPICTL.bit.OVERRUNINTENA = 0;	// Overrun Interrupt DISABLE
-	SpiaRegs.SPICTL.bit.SPIINTENA = 1;// Interrupt for Recieve and Transmitbuffer ENABLE
+	SpiaRegs.SPICTL.bit.SPIINTENA = 1;		// Interrupt for Recieve and Transmitbuffer ENABLE
 	SpiaRegs.SPICTL.bit.TALK = 1;			// Transmit ENABLE
 
-	SpiaRegs.SPIBRR.bit.SPI_BIT_RATE = 0x05; // Baudrate on 10 Mhz !!!!!!!! (LSPCLK on 50Mhz --> SPI_BIT_RATE = 0x05 for 10 Mhz Communication)
+	SpiaRegs.SPIBRR.bit.SPI_BIT_RATE = 0x05; // Baudrate on 10 Mhz ! (LSPCLK on 50Mhz --> SPI_BIT_RATE = 0x05 for 10 Mhz Communication)
 
 	SpiaRegs.SPIPRI.bit.FREE = 1;			// Free running ENABLE
-	SpiaRegs.SPIPRI.bit.SOFT = 0; 	// Does have no effect, if FREE-bit is 1!!!
+	SpiaRegs.SPIPRI.bit.SOFT = 0; 			// Does have no effect, if FREE-bit is 1!!!
 
 	SpiaRegs.SPICCR.bit.SPISWRESET = 1;  	// Enable SPI after Configuration
-
 }
 
 /*
@@ -83,7 +82,6 @@ void imu_init_registers() {
 	imu_write_byte(0x11, 0x80); // Activate Gyroskope
 
 	imu_block_cfgregs();
-
 }
 
 void imu_read() {
@@ -113,10 +111,7 @@ Bool imu_free_cfgregs() {
  */
 Bool imu_block_cfgregs() {
 	imu_write_byte(0x01, 0x00);
-	if (imu_read_byte(0x01) != 0)
-		return false;
-	else
-		return true;
+	return imu_read_byte(0x01) == 0;
 }
 
 /// Initialize the perepherial registers (GPIO & SPI-A) for communication to IMU (Inertial Measurement Unit).

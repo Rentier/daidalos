@@ -5,5 +5,7 @@
 
 extern Semaphore_Handle semaphore_mainloop;
 extern Semaphore_Handle semaphore_datafusion;
+extern Semaphore_Handle semaphore_spia_done;
+
 
 #endif /* RMR_SEMAPHORES_H_ */

@@ -33,13 +33,17 @@
  *  ======== TMS320F28377S.cmd ========
  *  Define the memory block start/length for the TMS320F28377S
  */
-
 MEMORY
 {
 PAGE 0 :  /* Program Memory */
           /* BEGIN is used for the "boot to FLASH" bootloader mode   */
 
     D01SARAM   : origin = 0x00B000, length = 0x001000
+
+	/* Local Shared Memory */
+	LS03SARAM  : origin = 0x009800, length = 0x000800 /* on-chip RAM for CLA program */
+	LS04SARAM  : origin = 0x00A000, length = 0x000800 /* on-chip RAM */
+
 
     /* Flash boot address */
     BEGIN   : origin = 0x080000, length = 0x000002
@@ -82,8 +86,17 @@ PAGE 1 : /* Data Memory */
                                                         stack */
 
     M01SARAM : origin = 0x000122, length = 0x0006DE  /* on-chip RAM */
+	/* Local Shared Memory */
 
-    LS05SARAM : origin = 0x008000, length = 0x003000 /* on-chip RAM */
+	LS00SARAM          	: origin = 0x008000, length = 0x000800 	/* on-chip RAM for CLA data */
+   	LS01SARAM          	: origin = 0x008800, length = 0x000800	/* on-chip RAM for CLA data and scratchpad*/
+   	LS02SARAM      		: origin = 0x009000, length = 0x000800	/* on-chip RAM */
+   	LS05SARAM      		: origin = 0x00A800, length = 0x000800	/* on-chip RAM */
+
+	/* Message Memory */
+
+	CLA1_MSGRAMLOW			: origin = 0x001480, length = 0x000080
+	CLA1_MSGRAMHIGH			: origin = 0x001500, length = 0x000080
 
     /* on-chip Global shared RAMs */
     RAMGS0  : origin = 0x00C000, length = 0x001000
@@ -160,11 +173,28 @@ SECTIONS
 #endif
 #endif
 
+	/* CLA specific sections */
+
+	Cla1Prog        : > LS03SARAM, PAGE=0
+
+	CLADataLS0		: > LS00SARAM | LS01SARAM, PAGE=1
+	/*CLADataLS1		: > LS01SARAM, PAGE=1	/* Not currently used.*/
+
+	Cla1ToCpuMsgRAM  : > CLA1_MSGRAMLOW,   PAGE = 1
+	CpuToCla1MsgRAM  : > CLA1_MSGRAMHIGH,  PAGE = 1
+
+   	/* CLA C compiler sections */
+   	//
+   	// Must be allocated to memory the CLA has write access to
+   	//
+   	.scratchpad     : > LS01SARAM,  PAGE = 1
+
+
     /* Allocate uninitalized data sections: */
-    .stack              : > M01SARAM | LS05SARAM    PAGE = 1
-    .ebss               : >> M01SARAM | LS05SARAM | RAMGS0 | RAMGS1 PAGE = 1
-    .esysmem            : > LS05SARAM | M01SARAM    PAGE = 1
-    .cio                : > LS05SARAM | M01SARAM    PAGE = 1
+    .stack              : > M01SARAM | LS05SARAM | LS02SARAM    PAGE = 1
+    .ebss               : >> M01SARAM | LS05SARAM | LS02SARAM | RAMGS0 | RAMGS1 PAGE = 1
+    .esysmem            : > LS05SARAM | LS02SARAM | M01SARAM    PAGE = 1
+    .cio                : > LS05SARAM | LS02SARAM | M01SARAM    PAGE = 1
 
     /* Initalized sections go in Flash */
     .econst             : > FLASHA | FLASHB | FLASHC | FLASHD | FLASHE |

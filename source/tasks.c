@@ -11,9 +11,16 @@
 #include "led.h"
 #include "semaphores.h"
 #include "vec3f.h"
+#include "cla.h"
 
 void task_datafusion_func(UArg a0, UArg a1) {
 	System_printf("Starting data fusion task\n");
+
+
+	// Just for testing reasons!
+	CLA_configClaMemory();
+	CLA_initCpu1Cla1();
+
 
 	while (1) {
 		Semaphore_pend(semaphore_datafusion, BIOS_WAIT_FOREVER);

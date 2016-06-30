@@ -33,7 +33,6 @@
  *  ======== TMS320F28377S.cmd ========
  *  Define the memory block start/length for the TMS320F28377S
  */
-
 MEMORY
 {
 PAGE 0 :  /* Program Memory */
@@ -41,13 +40,18 @@ PAGE 0 :  /* Program Memory */
 
     D01SARAM   : origin = 0x00B000, length = 0x001000
 
+	/* Local Shared Memory */
+	LS03SARAM  : origin = 0x009800, length = 0x000800 /* on-chip RAM for CLA program */
+	LS04SARAM  : origin = 0x00A000, length = 0x000800 /* on-chip RAM */
+
+
     /* Flash boot address */
     BEGIN   : origin = 0x080000, length = 0x000002
 
     /* Flash sectors */
     FLASHA  : origin = 0x080002, length = 0x001FFE  /* on-chip Flash */
     FLASHB  : origin = 0x082000, length = 0x002000  /* on-chip Flash */
-    FLASHC  : origin = 0x084000, length = 0x002000  /* on-chip Flash */
+    FLASHC  : origin = 0x084000, length = 0x002000  /* on-chip Flash, reserved for CLA*/
     FLASHD  : origin = 0x086000, length = 0x002000  /* on-chip Flash */
     FLASHE  : origin = 0x088000, length = 0x008000  /* on-chip Flash */
     FLASHF  : origin = 0x090000, length = 0x008000  /* on-chip Flash */
@@ -82,8 +86,17 @@ PAGE 1 : /* Data Memory */
                                                         stack */
 
     M01SARAM : origin = 0x000122, length = 0x0006DE  /* on-chip RAM */
+	/* Local Shared Memory */
 
-    LS05SARAM : origin = 0x008000, length = 0x003000 /* on-chip RAM */
+	LS00SARAM          	: origin = 0x008000, length = 0x000800 	/* on-chip RAM for CLA data */
+   	LS01SARAM          	: origin = 0x008800, length = 0x000800	/* on-chip RAM for CLA data and scratchpad*/
+   	LS02SARAM      		: origin = 0x009000, length = 0x000800	/* on-chip RAM */
+   	LS05SARAM      		: origin = 0x00A800, length = 0x000800	/* on-chip RAM */
+
+	/* Message Memory */
+
+	CLA1_MSGRAMLOW			: origin = 0x001480, length = 0x000080
+	CLA1_MSGRAMHIGH			: origin = 0x001500, length = 0x000080
 
     /* on-chip Global shared RAMs */
     RAMGS0  : origin = 0x00C000, length = 0x001000
@@ -108,32 +121,32 @@ PAGE 1 : /* Data Memory */
 SECTIONS
 {
     /* Allocate program areas: */
-    .cinit              : > FLASHA | FLASHB | FLASHC | FLASHD | FLASHE |
+    .cinit              : > FLASHA | FLASHB | FLASHD | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
                             FLASHU | FLASHV | FLASHW | FLASHX | FLASHY |
                             FLASHZ | FLASHAA | FLASHAB PAGE = 0
-    .binit              : > FLASHA | FLASHB | FLASHC | FLASHD | FLASHE |
+    .binit              : > FLASHA | FLASHB | FLASHD | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
                             FLASHU | FLASHV | FLASHW | FLASHX | FLASHY |
                             FLASHZ | FLASHAA | FLASHAB PAGE = 0
-    .pinit              : > FLASHA | FLASHB | FLASHC | FLASHD | FLASHE |
+    .pinit              : > FLASHA | FLASHB | FLASHD | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
                             FLASHU | FLASHV | FLASHW | FLASHX | FLASHY |
                             FLASHZ | FLASHAA | FLASHAB PAGE = 0
-    .text               : > FLASHA | FLASHB | FLASHC | FLASHD | FLASHE |
+    .text               : > FLASHA | FLASHB | FLASHD | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
                             FLASHU | FLASHV | FLASHW | FLASHX | FLASHY |
                             FLASHZ | FLASHAA | FLASHAB PAGE = 0
     codestart           : > BEGIN   PAGE = 0
-    ramfuncs            : LOAD = FLASHA | FLASHB | FLASHC | FLASHD | FLASHE |
+    ramfuncs            : LOAD = FLASHA | FLASHB | FLASHD | FLASHE |
                                  FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                                  FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                                  FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
@@ -149,7 +162,7 @@ SECTIONS
 
 #ifdef __TI_COMPILER_VERSION
 #if __TI_COMPILER_VERSION >= 15009000
-    .TI.ramfunc : {} LOAD = FLASHA | FLASHB | FLASHC | FLASHD | FLASHE |
+    .TI.ramfunc : {} LOAD = FLASHA | FLASHB | FLASHD | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
@@ -160,26 +173,55 @@ SECTIONS
 #endif
 #endif
 
+	/* CLA specific sections */
+
+   Cla1Prog         : LOAD = FLASHC,
+                      RUN = LS03SARAM,
+                      LOAD_START(_Cla1funcsLoadStart),
+                      LOAD_END(_Cla1funcsLoadEnd),
+                      RUN_START(_Cla1funcsRunStart),
+                      LOAD_SIZE(_Cla1funcsLoadSize),
+                      PAGE = 0, ALIGN(4)
+
+	CLADataLS0		: > LS00SARAM, PAGE=1
+	CLADataLS1		: > LS01SARAM, PAGE=1
+
+	Cla1ToCpuMsgRAM  : > CLA1_MSGRAMLOW,   PAGE = 1
+	CpuToCla1MsgRAM  : > CLA1_MSGRAMHIGH,  PAGE = 1
+
+   	/* CLA C compiler sections */
+   	//
+   	// Must be allocated to memory the CLA has write access to
+   	//
+   	.scratchpad      : > LS01SARAM,       PAGE = 1
+   	.bss_cla		 : > LS01SARAM,       PAGE = 1
+   	.const_cla	    :  LOAD = FLASHC,
+                       RUN = LS01SARAM,
+                       RUN_START(_Cla1ConstRunStart),
+                       LOAD_START(_Cla1ConstLoadStart),
+                       LOAD_SIZE(_Cla1ConstLoadSize),
+                       PAGE = 1
+
     /* Allocate uninitalized data sections: */
-    .stack              : > M01SARAM | LS05SARAM    PAGE = 1
-    .ebss               : >> M01SARAM | LS05SARAM | RAMGS0 | RAMGS1 PAGE = 1
-    .esysmem            : > LS05SARAM | M01SARAM    PAGE = 1
-    .cio                : > LS05SARAM | M01SARAM    PAGE = 1
+    .stack              : > M01SARAM | LS05SARAM | LS02SARAM    PAGE = 1
+    .ebss               : >> M01SARAM | LS05SARAM | LS02SARAM | RAMGS0 | RAMGS1 PAGE = 1
+    .esysmem            : > LS05SARAM | LS02SARAM | M01SARAM    PAGE = 1
+    .cio                : > LS05SARAM | LS02SARAM | M01SARAM    PAGE = 1
 
     /* Initalized sections go in Flash */
-    .econst             : > FLASHA | FLASHB | FLASHC | FLASHD | FLASHE |
+    .econst             : > FLASHA | FLASHB | FLASHD | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
                             FLASHU | FLASHV | FLASHW | FLASHX | FLASHY |
                             FLASHZ | FLASHAA | FLASHAB PAGE = 0
-    .switch             : > FLASHA | FLASHB | FLASHC | FLASHD | FLASHE |
+    .switch             : > FLASHA | FLASHB | FLASHD | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
                             FLASHU | FLASHV | FLASHW | FLASHX | FLASHY |
                             FLASHZ | FLASHAA | FLASHAB PAGE = 0
-    .args               : > FLASHA | FLASHB | FLASHC | FLASHD | FLASHE |
+    .args               : > FLASHA | FLASHB | FLASHD | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |

@@ -5,15 +5,20 @@
  *      Author: Tommy Schmidt
  */
 
+#include "xdc/runtime/System.h"
 #include "cla.h"
 #include "F2837xS_device.h"
+#include "F2837xS_Cla_defines.h"
+#include "globals.h"
+#include "semaphores.h"
+
+//#include "F28X7X_Cla_typedefs.h"
+//#include "xdc/std.h"
 //#include "stdint.h"
 //
 // Function Prototypes
 //
-void CLA_runTest(void);
-void CLA_configClaMemory(void);
-void CLA_initCpu1Cla1(void);
+
 void cla1Isr1();
 void cla1Isr2();
 void cla1Isr3();
@@ -28,14 +33,20 @@ void CLA_configClaMemory(void) {
 	extern uint32_t Cla1funcsRunStart, Cla1funcsLoadStart, Cla1funcsLoadSize;
 	EALLOW;
 
-#ifdef _FLASH
+	CpuSysRegs.PCLKCR0.bit.CLA1 = 1;	// Starting CLA-Clock.
+	if (CpuSysRegs.PCLKCR0.bit.CLA1 == 1)
+		System_printf("CLA sarted!\n");
+	else
+		System_printf("CLA Clock not active!\n");
+
 	//
 	// Copy over code from FLASH to RAM
 	//
 	memcpy((uint32_t *)&Cla1funcsRunStart, (uint32_t *)&Cla1funcsLoadStart,
 			(uint32_t)&Cla1funcsLoadSize);
-#endif //_FLASH
 
+	System_printf("Cla1funcsRunStart: %x \tCla1funcsLoadStart: %x \tCla1funcsLoadSize: %x \n", Cla1funcsRunStart ,Cla1funcsLoadStart, Cla1funcsLoadSize);
+	System_flush();
 	//
 	// Initialize and wait for CLA1ToCPUMsgRAM
 	//
@@ -49,14 +60,14 @@ void CLA_configClaMemory(void) {
 	MemCfgRegs.MSGxINIT.bit.INIT_CPUTOCLA1 = 1;
 	while (MemCfgRegs.MSGxINITDONE.bit.INITDONE_CPUTOCLA1 != 1) {
 	};
-
+	System_printf("Messageram initialized.\n");
 	//
-	// Select LS5RAM to be the programming space for the CLA
-	// First configure the CLA to be the master for LS5 and then
+	// Select LS3RAM to be the programming space for the CLA
+	// First configure the CLA to be the master for LS3 and then
 	// set the space to be a program block
 	//
-	MemCfgRegs.LSxMSEL.bit.MSEL_LS5 = 1;
-	MemCfgRegs.LSxCLAPGM.bit.CLAPGM_LS5 = 1;
+	MemCfgRegs.LSxMSEL.bit.MSEL_LS3 = 1;
+	MemCfgRegs.LSxCLAPGM.bit.CLAPGM_LS3 = 1;
 
 	//
 	// Next configure LS0RAM and LS1RAM as data spaces for the CLA
@@ -97,34 +108,17 @@ void CLA_initCpu1Cla1(void) {
 	// subset of tasks) by writing to their respective bits in the
 	// MIER register
 	//
-	Cla1Regs.MCTL.bit.IACKE = 1;
+	Cla1Regs.MCTL.bit.IACKE = CLA_IACK_ENABLE;
 	Cla1Regs.MIER.all = 0x00FF;
 
-	//
-	// Configure the vectors for the end-of-task interrupt for all
-	// 8 tasks
-	//
-//	PieVectTable.CLA1_1_INT = &cla1Isr1;
-//	PieVectTable.CLA1_2_INT = &cla1Isr2;
-//	PieVectTable.CLA1_3_INT = &cla1Isr3;
-//	PieVectTable.CLA1_4_INT = &cla1Isr4;
-//	PieVectTable.CLA1_5_INT = &cla1Isr5;
-//	PieVectTable.CLA1_6_INT = &cla1Isr6;
-//	PieVectTable.CLA1_7_INT = &cla1Isr7;
-//	PieVectTable.CLA1_8_INT = &cla1Isr8; All becomes managed by SYSBIOS!
 
-	//
-	// Enable CLA interrupts at the group and subgroup levels
-	//
-	//	PieCtrlRegs.PIEIER11.all = 0xFFFF;
-	//	IER |= (M_INT11);
 }
 
 //*****************************************************************************
 // ISR
 //*****************************************************************************
  void cla1Isr1() {
-	asm(" ESTOP0");
+	Semaphore_post(semaphore_datafusion);
 }
 
  void cla1Isr2() {

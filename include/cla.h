@@ -1,16 +1,9 @@
 #ifndef RMR_CLA_H_
 #define RMR_CLA_H_
 
-//#define __TMS320C28XX_CLA__
-
-//
-// Included Files
-//
-#include "F2837xS_Cla_defines.h"
-//#include "F28X7X_Cla_typedefs.h"
-#include <stdint.h>
 #include "vec3f.h"
-//#include "xdc/std.h"
+#include <stdint.h>
+
 
 typedef struct {
 	vec3f phi;		// Old phi
@@ -22,10 +15,12 @@ typedef struct {
 } cpu_to_cla_ram;
 
 typedef struct {
-	uint32_t y_1;	// Thrust motor 1
-	uint32_t y_2;	// Thrust motor 2
-	uint32_t y_3;	// Thrust motor 3
-	uint32_t y_4;	// Thrust motor 4
+	float y_1;	// Thrust motor 1
+	float y_2;	// Thrust motor 2
+	float y_3;	// Thrust motor 3
+	float y_4;	// Thrust motor 4
+	vec3f phi;	// Corrected Pose
+	vec3f w;	// Corrected angular speed
 }cla_to_cpu_ram;
 
 
@@ -35,6 +30,10 @@ typedef struct {
 // The following are symbols defined in the CLA assembly code
 // Including them in the shared header file makes them
 // .global and the main CPU can make use of them.
+void CLA_configClaMemory(void);
+void CLA_initCpu1Cla1(void);
+
+void cla1Isr1(void);
 
 //CLA C Tasks
 __interrupt void Cla1Task1();
@@ -47,22 +46,14 @@ __interrupt void Cla1Task7();
 __interrupt void Cla1Task8();
 
 
-
-
 //
 //Task 1 (C) Variables
 //
-#ifdef __cplusplus
-#pragma DATA_SECTION("CpuToCla1MsgRAM")
-extern int x;
-#pragma DATA_SECTION("Cla1ToCpuMsgRAM")
-extern int y;
-#else
-#pragma DATA_SECTION(x,"CpuToCla1MsgRAM")
-extern int x;
-#pragma DATA_SECTION(y,"Cla1ToCpuMsgRAM")
-extern int y;
-#endif //__cplusplus
+#pragma DATA_SECTION(bias_acc,"CLADataLS0");
+#pragma DATA_SECTION(bias_gyro,"CLADataLS0");
+vec3f bias_acc, bias_gyro;
+
+
 
 //
 //Task 2 (C) Variables

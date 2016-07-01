@@ -1,6 +1,10 @@
 eclipse.preferences.version=1
 encoding//Debug/cmd/subdir_rules.mk=UTF-8
 encoding//Debug/cmd/subdir_vars.mk=UTF-8
+encoding//Debug/lib/CLAmath/v400/lib/subdir_rules.mk=UTF-8
+encoding//Debug/lib/CLAmath/v400/lib/subdir_vars.mk=UTF-8
+encoding//Debug/lib/CLAmath/v400/source/CLAMathLib/subdir_rules.mk=UTF-8
+encoding//Debug/lib/CLAmath/v400/source/CLAMathLib/subdir_vars.mk=UTF-8
 encoding//Debug/lib/f28377s/src/subdir_rules.mk=UTF-8
 encoding//Debug/lib/f28377s/src/subdir_vars.mk=UTF-8
 encoding//Debug/lib/src/subdir_rules.mk=UTF-8

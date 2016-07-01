@@ -3,9 +3,12 @@
 #include <string.h>
 
 #include <ti/sysbios/BIOS.h>
+#include "xdc/std.h"
 #include <xdc/runtime/System.h>
 #include "semaphores.h"
 #include "globals.h"
+
+#include "F2837xS_device.h"
 
 static Bool read; // Flag for signing a read command. FALSE is a write!
 
@@ -19,7 +22,7 @@ static uint16_t data_tx; // String to be sent via SPI (Prepared to load into TxB
 void imu_init() {
 	// Initialize SPI
 	System_printf("Initializing IMU\n");
-
+	garbage = garbage; // Just avoid a warning for the never USED variable.
 	memset(&imu, 0, sizeof(Imu));
 
 	imu_init_spia(50000);
@@ -98,10 +101,6 @@ void imu_read() {
  */
 Bool imu_free_cfgregs() {
 	imu_write_byte(0x01, 0x80);
-	if (imu_read_byte(0x01) != 128)
-		return false;
-	else
-		return true;
 	return imu_read_byte(0x01) == 128;
 }
 

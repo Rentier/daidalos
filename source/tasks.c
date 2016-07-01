@@ -4,7 +4,7 @@
 
 #include <ti/sysbios/BIOS.h>
 #include <ti/sysbios/knl/Semaphore.h>
-
+#include "cla.h"
 #include "datafusion.h"
 #include "globals.h"
 #include "imu.h"
@@ -14,6 +14,15 @@
 
 void task_datafusion_func(UArg a0, UArg a1) {
 	System_printf("Starting data fusion task\n");
+
+	CLA_configClaMemory();
+	CLA_initCpu1Cla1();
+	datafusion_init();
+	/*
+	 * Übergebe Bias informationen an CLA.
+	 */
+	bias_acc = imu.bias_acc;
+	bias_gyro = imu.bias_gyro;
 
 	while (1) {
 		Semaphore_pend(semaphore_datafusion, BIOS_WAIT_FOREVER);
@@ -57,5 +66,5 @@ void task_led_func(UArg a0, UArg a1) {
 	while (1) {
 		led_toggle();
 		Task_sleep(1000);
-	}
+
 }

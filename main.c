@@ -12,6 +12,9 @@
 #include "clocks.h"
 #include "quadcopter.h"
 
+#define GLOBAL
+#include "globals.h"
+
 Int main() {
 	System_printf("Starting...\n");
 

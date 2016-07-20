@@ -49,11 +49,11 @@ __interrupt void Cla1Task8();
 //
 //Task 1 (C) Variables
 //
-#pragma DATA_SECTION(bias_acc,"CLADataLS0");
-#pragma DATA_SECTION(bias_gyro,"CLADataLS0");
-vec3f bias_acc, bias_gyro;
+extern vec3f bias_acc, bias_gyro;
 
+extern cpu_to_cla_ram cpu_to_cla;
 
+extern cla_to_cpu_ram cla_to_cpu;
 
 //
 //Task 2 (C) Variables

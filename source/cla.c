@@ -4,9 +4,11 @@
  *  Created on: 28.06.2016
  *      Author: Tommy Schmidt
  */
+#define CLA_SHARE
+#include "cla.h"
 
 #include "xdc/runtime/System.h"
-#include "cla.h"
+
 #include "F2837xS_device.h"
 #include "F2837xS_Cla_defines.h"
 #include "globals.h"
@@ -15,38 +17,49 @@
 //#include "F28X7X_Cla_typedefs.h"
 //#include "xdc/std.h"
 //#include "stdint.h"
-//
-// Function Prototypes
-//
 
-void cla1Isr1();
-void cla1Isr2();
-void cla1Isr3();
-void cla1Isr4();
-void cla1Isr5();
-void cla1Isr6();
-void cla1Isr7();
-void cla1Isr8();
+#pragma DATA_SECTION(cpu_to_cla,"CpuToCla1MsgRAM")
+cpu_to_cla_ram cpu_to_cla;
 
+#pragma DATA_SECTION(cla_to_cpu,"Cla1ToCpuMsgRAM")
+cla_to_cpu_ram cla_to_cpu;
+
+#pragma DATA_SECTION(bias_acc,"CLADataLS0");
+#pragma DATA_SECTION(bias_gyro,"CLADataLS0");
+vec3f bias_acc, bias_gyro;
+
+extern uint32_t cla1funcs_run_start, cla1funcs_load_start, cla1funcs_load_size;
+extern uint32_t cla1math_tables_run_start, cla1math_tables_load_start, cla1math_tables_load_size;
+extern uint32_t cla1_const_run_start, cla1_const_load_start, cla1_const_load_size;
 
 void CLA_configClaMemory(void) {
-	extern uint32_t Cla1funcsRunStart, Cla1funcsLoadStart, Cla1funcsLoadSize;
 	EALLOW;
 
 	CpuSysRegs.PCLKCR0.bit.CLA1 = 1;	// Starting CLA-Clock.
 	if (CpuSysRegs.PCLKCR0.bit.CLA1 == 1)
-		System_printf("CLA sarted!\n");
+		System_printf("CLA started!\n");
 	else
 		System_printf("CLA Clock not active!\n");
 
 	//
-	// Copy over code from FLASH to RAM
+	// Copy over program-code from FLASH to RAM
 	//
-	memcpy((uint32_t *)&Cla1funcsRunStart, (uint32_t *)&Cla1funcsLoadStart,
-			(uint32_t)&Cla1funcsLoadSize);
+	memcpy((uint32_t *)&cla1funcs_run_start, (uint32_t *)&cla1funcs_load_start,
+				(uint32_t)&cla1funcs_load_size);
 
-	System_printf("Cla1funcsRunStart: %x \tCla1funcsLoadStart: %x \tCla1funcsLoadSize: %x \n", Cla1funcsRunStart ,Cla1funcsLoadStart, Cla1funcsLoadSize);
-	System_flush();
+	/*
+	 * Copy over tables from CLAmath.lib
+	 */
+	memcpy((uint32_t *)&cla1math_tables_run_start, (uint32_t *)&cla1math_tables_load_start,
+				(uint32_t)&cla1math_tables_load_size);
+
+	/*
+	 * Copy over constants to data memory.
+	 */
+	memcpy((uint32_t *)&cla1_const_run_start, (uint32_t *)&cla1_const_load_start,
+			(uint32_t)&cla1_const_load_size);
+
+
 	//
 	// Initialize and wait for CLA1ToCPUMsgRAM
 	//
@@ -118,7 +131,7 @@ void CLA_initCpu1Cla1(void) {
 // ISR
 //*****************************************************************************
  void cla1Isr1() {
-	Semaphore_post(semaphore_datafusion);
+	Semaphore_post(semaphore_datafusion_finished);
 }
 
  void cla1Isr2() {

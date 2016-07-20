@@ -33,6 +33,12 @@
  *  ======== TMS320F28377S.cmd ========
  *  Define the memory block start/length for the TMS320F28377S
  */
+
+// Define a size for the CLA scratchpad area that will be used
+// by the CLA compiler for local symbols and temps
+// Also force references to the special symbols that mark the
+// scratchpad are.
+
 MEMORY
 {
 PAGE 0 :  /* Program Memory */
@@ -41,8 +47,8 @@ PAGE 0 :  /* Program Memory */
     D01SARAM   : origin = 0x00B000, length = 0x001000
 
 	/* Local Shared Memory */
-	LS03SARAM  : origin = 0x009800, length = 0x000800 /* on-chip RAM for CLA program */
-	LS04SARAM  : origin = 0x00A000, length = 0x000800 /* on-chip RAM */
+	LS0304SARAM  : origin = 0x009800, length = 0x001000 /* on-chip RAM for CLA program and CLAmath lookup tables */
+//	LS04SARAM  : origin = 0x00A000, length = 0x000800 /* on-chip RAM for CLA program and CLAmath lookup tables*/
 
 
     /* Flash boot address */
@@ -176,12 +182,17 @@ SECTIONS
 	/* CLA specific sections */
 
    Cla1Prog         : LOAD = FLASHC,
-                      RUN = LS03SARAM,
-                      LOAD_START(_Cla1funcsLoadStart),
-                      LOAD_END(_Cla1funcsLoadEnd),
-                      RUN_START(_Cla1funcsRunStart),
-                      LOAD_SIZE(_Cla1funcsLoadSize),
+                      RUN = LS0304SARAM ,//| LS04SARAM,
+                      LOAD_START(_cla1funcs_load_start),
+                      RUN_START(_cla1funcs_run_start),
+                      LOAD_SIZE(_cla1funcs_load_size),
                       PAGE = 0, ALIGN(4)
+
+	CLA1mathTables :	LOAD = FLASHC,    	PAGE = 0
+                 		RUN = LS01SARAM,	PAGE = 1
+                 		LOAD_START(_cla1math_tables_load_start),
+                 		RUN_START(_cla1math_tables_run_start),
+						LOAD_SIZE(_cla1math_tables_load_size)
 
 	CLADataLS0		: > LS00SARAM, PAGE=1
 	CLADataLS1		: > LS01SARAM, PAGE=1
@@ -193,14 +204,16 @@ SECTIONS
    	//
    	// Must be allocated to memory the CLA has write access to
    	//
+
    	.scratchpad      : > LS01SARAM,       PAGE = 1
    	.bss_cla		 : > LS01SARAM,       PAGE = 1
-   	.const_cla	    :  LOAD = FLASHC,
-                       RUN = LS01SARAM,
-                       RUN_START(_Cla1ConstRunStart),
-                       LOAD_START(_Cla1ConstLoadStart),
-                       LOAD_SIZE(_Cla1ConstLoadSize),
-                       PAGE = 1
+   	//.const_cla		 : > LS01SARAM,       PAGE = 1
+   	.const_cla	    :  LOAD = FLASHD,	PAGE = 0
+                       RUN = LS01SARAM,	PAGE = 1
+                       RUN_START(_cla1_const_run_start),
+                       LOAD_START(_cla1_const_load_start),
+                       LOAD_SIZE(_cla1_const_load_size)
+
 
     /* Allocate uninitalized data sections: */
     .stack              : > M01SARAM | LS05SARAM | LS02SARAM    PAGE = 1

@@ -2,16 +2,17 @@
 // includes
 //*****************************************************************************
 #include "cla.h"
-#include "globals.h"
 #include "CLAmath.h"
 #include "F2837xS_Cla_typedefs.h"
 
 #define	M_PI		3.14159265358979323846	/* pi */
 
+const float RAD_TO_DEG = 57.295779513082320876798154814105; /* = 180/ pi */
+const float DEG_TO_RAD = 0.01745329251994329576923690768489; /* = pi / 180 */
+
 /*
  * local variables
  */
-
 
 /*
  * functions
@@ -20,6 +21,8 @@
 //Task 1 : Datafusion Pose
 __interrupt void Cla1Task1(void) {
 	vec3f phi, w;
+
+	__mdebugstop();
 
 	/*
 	 * Pull Data from Message Ram
@@ -36,25 +39,35 @@ __interrupt void Cla1Task1(void) {
 							+ (acc.z - bias_acc.z) * (acc.z - bias_acc.z)));
 
 	// Radians to degree
-	phi.x *= 180 / M_PI;
-	phi.y *= 180 / M_PI;
+
+	phi.x *= RAD_TO_DEG;
+	phi.y *= RAD_TO_DEG;
 
 	// Subtract bias
 	//TODO: name this coordinate system
 	w.x = (gyro.x - bias_gyro.x);
 	w.y = -(gyro.y - bias_gyro.y);
 	w.z = -(gyro.z - bias_gyro.z);
+	__mdebugstop();
 
-	float phi_rad = phi_old.x * M_PI / 180;
-	float theta_rad = phi_old.y * M_PI / 180;
+	// degree to Radians
 
-	float sinphi = CLAsin(phi_rad);
-	float cosphi = CLAcos(phi_rad);
-	float tanphi = sinphi / cosphi;
+	float phi_rad = phi_old.x * DEG_TO_RAD;
+	float theta_rad = phi_old.y * DEG_TO_RAD;
 
-	float sintheta = CLAsin(theta_rad);
-	float costheta = CLAcos(theta_rad);
-	float tantheta = sintheta / costheta;
+	//float sinphi = CLAsin(phi_rad);
+	//float cosphi = CLAcos(phi_rad);
+
+	float sinphi, cosphi;
+	CLAsincos(phi_rad, &sinphi, &cosphi);
+	float tanphi = CLAdiv(sinphi, cosphi);
+
+//	float sintheta = CLAsin(theta_rad);
+//	float costheta = CLAcos(theta_rad);
+
+	float sintheta, costheta;
+	CLAsincos(theta_rad, &sintheta, &costheta);
+	float tantheta = CLAdiv(sintheta, costheta);
 
 	// Complementary filter for Euler angles, see e.g. http://www.pieter-jan.com/node/11
 	phi.x = 0.995
@@ -62,11 +75,13 @@ __interrupt void Cla1Task1(void) {
 					+ 0.0013157
 							* (w.x + sinphi * tantheta * w.y
 									+ cosphi * tantheta * w.z)
-					+ (w.x - w_old.x) * (0.0013157 / 2)) + 0.005 * phi.x;
+					+ (w.x - w_old.x) * CLAdiv(0.0013157, 2)) + 0.005 * phi.x;
 	phi.y = 0.995
 			* (phi_old.y + 0.0013157 * (cosphi * w.y - sinphi * w.z)
-					+ (w.y - w_old.y) * (0.0013157 / 2)) + 0.005 * phi.y;
-	phi.z = phi_old.z + 0.0013157 * (sinphi * w.y + cosphi * w.z) / costheta;
+					+ (w.y - w_old.y) * CLAdiv(0.0013157, 2)) + 0.005 * phi.y;
+	phi.z = phi_old.z
+			+ CLAdiv(0.0013157 * (sinphi * w.y + cosphi * w.z), costheta);
+	__mdebugstop();
 
 	/*
 	 * Push results to Message RAM.
@@ -74,15 +89,8 @@ __interrupt void Cla1Task1(void) {
 	cla_to_cpu.phi = phi;
 	cla_to_cpu.w = w;
 
-
 	cla_to_cpu.y_1 = cpu_to_cla.phi.x + 1;
-
-
 }
-
-float CLA_tan(float fAngleRad){
-		return (CLAsin(fAngleRad) / CLAcos(fAngleRad));
-	}
 
 __interrupt void Cla1Task2(void) {
 

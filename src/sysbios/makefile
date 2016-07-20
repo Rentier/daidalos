@@ -1,29 +1,29 @@
 
-XOPTS = -I"E:/TI/xdctools_3_32_00_06_core/packages/" -Dxdc_target_types__=E:/TI/bios_6_45_01_29/packages/ti/targets/std.h -Dxdc_target_name__=C28_float
+XOPTS = -I"C:/ti/xdctools_3_32_00_06_core/packages/" -Dxdc_target_types__=C:/ti/tirtos_c2000_2_16_01_14/products/bios_6_45_02_31/packages/ti/targets/std.h -Dxdc_target_name__=C28_float
 
-vpath % E:/TI/bios_6_45_01_29/packages/ti/sysbios/
-vpath %.c E:/TI/xdctools_3_32_00_06_core/packages/
+vpath % C:/ti/tirtos_c2000_2_16_01_14/products/bios_6_45_02_31/packages/ti/sysbios/
+vpath %.c C:/ti/xdctools_3_32_00_06_core/packages/
 
 CCOPTS    = -v28 -DLARGE_MODEL=1 -ml --float_support=fpu32 -q -mo  --program_level_compile -o3 -g --optimize_with_debug  -Dti_sysbios_knl_Task_minimizeLatency__D=FALSE -Dti_sysbios_family_c28_Hwi_zeroLatencyIERMask__D=0U -Dti_sysbios_knl_Clock_stopCheckNext__D=FALSE
 
-XDC_ROOT  = E:/TI/xdctools_3_32_00_06_core/packages/
+XDC_ROOT  = C:/ti/xdctools_3_32_00_06_core/packages/
 
-BIOS_ROOT = E:/TI/bios_6_45_01_29/packages/ti/sysbios/
+BIOS_ROOT = C:/ti/tirtos_c2000_2_16_01_14/products/bios_6_45_02_31/packages/ti/sysbios/
 
 BIOS_DEFS =  -Dti_sysbios_BIOS_swiEnabled__D=TRUE -Dti_sysbios_BIOS_taskEnabled__D=TRUE -Dti_sysbios_BIOS_clockEnabled__D=TRUE -Dti_sysbios_BIOS_runtimeCreatesEnabled__D=TRUE -Dti_sysbios_hal_Hwi_DISABLE_ALL_HOOKS -Dti_sysbios_knl_Swi_DISABLE_ALL_HOOKS -Dti_sysbios_BIOS_smpEnabled__D=FALSE -Dti_sysbios_Build_useHwiMacros -Dti_sysbios_knl_Swi_numPriorities__D=16 -Dti_sysbios_knl_Task_deleteTerminatedTasks__D=FALSE -Dti_sysbios_knl_Task_numPriorities__D=16 -Dti_sysbios_knl_Task_checkStackFlag__D=TRUE -Dti_sysbios_knl_Task_initStackFlag__D=TRUE -Dti_sysbios_knl_Task_DISABLE_ALL_HOOKS -Dti_sysbios_knl_Clock_TICK_SOURCE=ti_sysbios_knl_Clock_TickSource_TIMER -Dti_sysbios_knl_Clock_TICK_MODE=ti_sysbios_knl_Clock_TickMode_PERIODIC -Dti_sysbios_hal_Core_delegate_getId=ti_sysbios_hal_CoreNull_getId__E -Dti_sysbios_hal_Core_delegate_interruptCore=ti_sysbios_hal_CoreNull_interruptCore__E -Dti_sysbios_hal_Core_delegate_lock=ti_sysbios_hal_CoreNull_lock__E -Dti_sysbios_hal_Core_delegate_unlock=ti_sysbios_hal_CoreNull_unlock__E -Dti_sysbios_hal_Core_numCores__D=1 -Dti_sysbios_hal_CoreNull_numCores__D=1 -Dti_sysbios_utils_Load_taskEnabled__D=TRUE -Dti_sysbios_utils_Load_swiEnabled__D=FALSE -Dti_sysbios_utils_Load_hwiEnabled__D=FALSE -Dti_sysbios_family_c28_Hwi_dispatcherSwiSupport__D=TRUE -Dti_sysbios_family_c28_Hwi_dispatcherTaskSupport__D=TRUE -Dti_sysbios_family_c28_Hwi_dispatcherAutoNestingSupport__D=TRUE -Dti_sysbios_family_c28_Hwi_dispatcherIrpTrackingSupport__D=TRUE -Dti_sysbios_knl_Semaphore_supportsEvents__D=FALSE -Dti_sysbios_knl_Semaphore_supportsPriority__D=TRUE
 
-BIOS_INC  = -I"E:/TI/bios_6_45_01_29/packages/"
+BIOS_INC  = -I"C:/ti/tirtos_c2000_2_16_01_14/products/bios_6_45_02_31/packages/"
 
-TARGET_INC = -I"E:/TI/bios_6_45_01_29/packages/"
+TARGET_INC = -I"C:/ti/tirtos_c2000_2_16_01_14/products/bios_6_45_02_31/packages/"
 
 INCS = $(BIOS_INC) $(TARGET_INC)  
 
-CC = E:/TI/ccsv6/tools/compiler/ti-cgt-c2000_16.3.0.STS/bin/cl2000 -c $(CCOPTS) -I E:/TI/ccsv6/tools/compiler/ti-cgt-c2000_16.3.0.STS/include
-ASM = E:/TI/ccsv6/tools/compiler/ti-cgt-c2000_16.3.0.STS/bin/cl2000 -c $(CCOPTS) -I E:/TI/ccsv6/tools/compiler/ti-cgt-c2000_16.3.0.STS/include
-AR = E:/TI/ccsv6/tools/compiler/ti-cgt-c2000_16.3.0.STS/bin/ar2000 rq
+CC = C:/ti/ccsv6/tools/compiler/ti-cgt-c2000_16.3.0.STS/bin/cl2000 -c $(CCOPTS) -I C:/ti/ccsv6/tools/compiler/ti-cgt-c2000_16.3.0.STS/include
+ASM = C:/ti/ccsv6/tools/compiler/ti-cgt-c2000_16.3.0.STS/bin/cl2000 -c $(CCOPTS) -I C:/ti/ccsv6/tools/compiler/ti-cgt-c2000_16.3.0.STS/include
+AR = C:/ti/ccsv6/tools/compiler/ti-cgt-c2000_16.3.0.STS/bin/ar2000 rq
 
-DEL = E:/TI/xdctools_3_32_00_06_core/packages/../bin/rm -f
-CP = E:/TI/xdctools_3_32_00_06_core/packages/../bin/cp -f
+DEL = C:/ti/xdctools_3_32_00_06_core/packages/../bin/rm -f
+CP = C:/ti/xdctools_3_32_00_06_core/packages/../bin/cp -f
 
 define RM
 	$(if $(wildcard $1),$(DEL) $1,:)

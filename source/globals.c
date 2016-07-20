@@ -2,7 +2,6 @@
 
 #include "globals.h"
 
-//Imu imu;
-//
-//quadcopter_t quadcopter;
+Imu imu;
 
+quadcopter_t quadcopter;

@@ -12,27 +12,6 @@
 #include "semaphores.h"
 #include "vec3f.h"
 
-void task_datafusion_func(UArg a0, UArg a1) {
-	System_printf("Starting data fusion task\n");
-
-	CLA_configClaMemory();
-	CLA_initCpu1Cla1();
-	datafusion_init();
-	/*
-	 * Übergebe Bias informationen an CLA.
-	 */
-	bias_acc = imu.bias_acc;
-	bias_gyro = imu.bias_gyro;
-
-	while (1) {
-		Semaphore_pend(semaphore_datafusion, BIOS_WAIT_FOREVER);
-		System_printf("Data fusion:\n");
-		datafusion_fuse_pose(cpu_to_cla.phi, cpu_to_cla.w, cpu_to_cla.raw_acc, cpu_to_cla.raw_gyro);
-
-		vec3f_print(quadcopter.phi);
-		vec3f_print(quadcopter.w);
-	}
-}
 void task_flush_func(UArg a0, UArg a1) {
 	System_printf("Starting flush task\n");
 	while (1) {
@@ -55,7 +34,33 @@ void task_imu_func(UArg a0, UArg a1) {
 
 		// Start the data fusion
 		// TODO: Actual start CLA task
-		Semaphore_post(semaphore_datafusion);
+		Semaphore_post(semaphore_datafusion_start);
+	}
+}
+
+void task_datafusion_func(UArg a0, UArg a1) {
+	System_printf("Starting data fusion task\n");
+
+	CLA_configClaMemory();
+	CLA_initCpu1Cla1();
+	datafusion_init();
+	/*
+	 * Transfer bias-data to CLA-memory todo: put bias information transfer to imu calibration task!
+	 */
+	bias_acc = imu.bias_acc;
+	bias_gyro = imu.bias_gyro;
+
+	while (1) {
+		Semaphore_pend(semaphore_datafusion_start, BIOS_WAIT_FOREVER);
+		System_printf("Data fusion:\n");
+		datafusion_fuse_pose_start();
+
+		Semaphore_pend(semaphore_datafusion_finished, BIOS_WAIT_FOREVER);
+
+		datafusion_fuse_pose_finished();
+
+		vec3f_print(quadcopter.phi);
+		vec3f_print(quadcopter.w);
 	}
 }
 
@@ -66,5 +71,5 @@ void task_led_func(UArg a0, UArg a1) {
 	while (1) {
 		led_toggle();
 		Task_sleep(1000);
-
+	}
 }

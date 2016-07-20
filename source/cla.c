@@ -4,15 +4,17 @@
  *  Created on: 28.06.2016
  *      Author: Tommy Schmidt
  */
-#define CLA_SHARE
+
 #include "cla.h"
 
 #include "xdc/runtime/System.h"
 
 #include "F2837xS_device.h"
 #include "F2837xS_Cla_defines.h"
+
 #include "globals.h"
 #include "semaphores.h"
+#include "swi.h"
 
 //#include "F28X7X_Cla_typedefs.h"
 //#include "xdc/std.h"
@@ -130,10 +132,15 @@ void CLA_initCpu1Cla1(void) {
 //*****************************************************************************
 // ISR
 //*****************************************************************************
- void cla1Isr1() {
-	Semaphore_post(semaphore_datafusion_finished);
+/*
+ * Interrupt for datafusion pose.
+ */
+void cla1Isr1() {
+	Swi_post(swi_update_state);
 }
-
+/*
+ * Interrupt for control algorithm.
+ */
  void cla1Isr2() {
 	asm(" ESTOP0");
 
@@ -147,7 +154,9 @@ void CLA_initCpu1Cla1(void) {
  void cla1Isr4() {
 	asm(" ESTOP0");
 }
-
+/*
+ * Interrupt for datafusion position.
+ */
  void cla1Isr5() {
 	asm(" ESTOP0");
 }

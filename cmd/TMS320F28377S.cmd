@@ -58,7 +58,7 @@ PAGE 0 :  /* Program Memory */
     FLASHA  : origin = 0x080002, length = 0x001FFE  /* on-chip Flash */
     FLASHB  : origin = 0x082000, length = 0x002000  /* on-chip Flash */
     FLASHC  : origin = 0x084000, length = 0x002000  /* on-chip Flash, reserved for CLA*/
-    FLASHD  : origin = 0x086000, length = 0x002000  /* on-chip Flash */
+    FLASHD  : origin = 0x086000, length = 0x002000  /* on-chip Flash, reserved for application data */
     FLASHE  : origin = 0x088000, length = 0x008000  /* on-chip Flash */
     FLASHF  : origin = 0x090000, length = 0x008000  /* on-chip Flash */
     FLASHG  : origin = 0x098000, length = 0x008000  /* on-chip Flash */
@@ -105,10 +105,7 @@ PAGE 1 : /* Data Memory */
 	CLA1_MSGRAMHIGH			: origin = 0x001500, length = 0x000080
 
     /* on-chip Global shared RAMs */
-    RAMGS0  : origin = 0x00C000, length = 0x001000
-    RAMGS1  : origin = 0x00D000, length = 0x001000
-    RAMGS2  : origin = 0x00E000, length = 0x001000
-    RAMGS3  : origin = 0x00F000, length = 0x001000
+    RAMGS0123  : origin = 0x00C000, length = 0x004000
     RAMGS4  : origin = 0x010000, length = 0x001000
     RAMGS5  : origin = 0x011000, length = 0x001000
     RAMGS6  : origin = 0x012000, length = 0x001000
@@ -127,32 +124,32 @@ PAGE 1 : /* Data Memory */
 SECTIONS
 {
     /* Allocate program areas: */
-    .cinit              : > FLASHA | FLASHB | FLASHD | FLASHE |
+    .cinit              : > FLASHA | FLASHB |  FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
                             FLASHU | FLASHV | FLASHW | FLASHX | FLASHY |
                             FLASHZ | FLASHAA | FLASHAB PAGE = 0
-    .binit              : > FLASHA | FLASHB | FLASHD | FLASHE |
+    .binit              : > FLASHA | FLASHB | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
                             FLASHU | FLASHV | FLASHW | FLASHX | FLASHY |
                             FLASHZ | FLASHAA | FLASHAB PAGE = 0
-    .pinit              : > FLASHA | FLASHB | FLASHD | FLASHE |
+    .pinit              : > FLASHA | FLASHB | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
                             FLASHU | FLASHV | FLASHW | FLASHX | FLASHY |
                             FLASHZ | FLASHAA | FLASHAB PAGE = 0
-    .text               : > FLASHA | FLASHB | FLASHD | FLASHE |
+    .text               : > FLASHA | FLASHB | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
                             FLASHU | FLASHV | FLASHW | FLASHX | FLASHY |
                             FLASHZ | FLASHAA | FLASHAB PAGE = 0
     codestart           : > BEGIN   PAGE = 0
-    ramfuncs            : LOAD = FLASHA | FLASHB | FLASHD | FLASHE |
+    ramfuncs            : LOAD = FLASHA | FLASHB | FLASHE |
                                  FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                                  FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                                  FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
@@ -168,7 +165,7 @@ SECTIONS
 
 #ifdef __TI_COMPILER_VERSION
 #if __TI_COMPILER_VERSION >= 15009000
-    .TI.ramfunc : {} LOAD = FLASHA | FLASHB | FLASHD | FLASHE |
+    .TI.ramfunc : {} LOAD = FLASHA | FLASHB | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
@@ -179,6 +176,9 @@ SECTIONS
 #endif
 #endif
 
+	/* Flash section for application data */
+
+	CalibrationData	: > FLASHD, 			PAGE = 0
 	/* CLA specific sections */
 
    Cla1Prog         : LOAD = FLASHC,
@@ -217,24 +217,24 @@ SECTIONS
 
     /* Allocate uninitalized data sections: */
     .stack              : > M01SARAM | LS05SARAM | LS02SARAM    PAGE = 1
-    .ebss               : >> M01SARAM | LS05SARAM | LS02SARAM | RAMGS0 | RAMGS1 PAGE = 1
+    .ebss               : > RAMGS0123 PAGE = 1
     .esysmem            : > LS05SARAM | LS02SARAM | M01SARAM    PAGE = 1
     .cio                : > LS05SARAM | LS02SARAM | M01SARAM    PAGE = 1
 
     /* Initalized sections go in Flash */
-    .econst             : > FLASHA | FLASHB | FLASHD | FLASHE |
+    .econst             : > FLASHA | FLASHB | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
                             FLASHU | FLASHV | FLASHW | FLASHX | FLASHY |
                             FLASHZ | FLASHAA | FLASHAB PAGE = 0
-    .switch             : > FLASHA | FLASHB | FLASHD | FLASHE |
+    .switch             : > FLASHA | FLASHB | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |
                             FLASHU | FLASHV | FLASHW | FLASHX | FLASHY |
                             FLASHZ | FLASHAA | FLASHAB PAGE = 0
-    .args               : > FLASHA | FLASHB | FLASHD | FLASHE |
+    .args               : > FLASHA | FLASHB | FLASHE |
                             FLASHF | FLASHG | FLASHH | FLASHI | FLASHJ |
                             FLASHK | FLASHL | FLASHM | FLASHN | FLASHO |
                             FLASHP | FLASHQ | FLASHR | FLASHS | FLASHT |

@@ -10,6 +10,9 @@
 
 #include "F2837xS_device.h"
 
+#pragma DATA_SECTION(imu_flash, "CalibrationData")
+static Imu imu_flash;	// Backup calibration data for IMU.
+
 static Bool read; // Flag for signing a read command. FALSE is a write!
 
 static char garbage; // Garbage area, neccessary for reading the RxBuffer to acknowledge Interrupt
@@ -23,19 +26,16 @@ void imu_init() {
 	// Initialize SPI
 	System_printf("Initializing IMU\n");
 	garbage = garbage; // Just avoid a warning for the never USED variable.
-	memset(&imu, 0, sizeof(Imu));
 
-	imu_init_spia(50000);
-	if (imu_test())
+	imu_init_spia();
+	if (imu_test()) {
 		System_printf("IMU - Test successfully finished.");
-	else
+	} else {
 		System_printf("IMU - Test failed!");
-
-
+	}
 }
 
-
-void imu_init_spia(uint16_t LSPCLK) {
+void imu_init_spia() {
 	// Setup the Highspeed GPIO Pins (GPIO68-61)
 	init_spiagpio_hs();
 
@@ -87,12 +87,17 @@ void imu_init_registers() {
 	imu_block_cfgregs();
 }
 
-void imu_read() {
-	// SPI Magic
-	// Write into CLA buffer
+void imu_read(vec3f *acc_target, vec3f *gyro_target ) {
+	// todo: Read actual data from imu. This can happen via imu_read_bytes
+	// and count = 3 to get multiple registers from imu.
 
-	cpu_to_cla.raw_acc = vec3f_sadd(cpu_to_cla.raw_acc, 1);
-	cpu_to_cla.raw_gyro = vec3f_sadd(cpu_to_cla.raw_gyro, 1);
+	acc_target->x = 1;
+	acc_target->y = 1;
+	acc_target->z = 1;
+
+	gyro_target->x = 1;
+	gyro_target->y = 1;
+	gyro_target->z = 1;
 }
 
 /*
@@ -215,6 +220,16 @@ void imu_write_byte(char reg, char value) {
 	GpioDataRegs.GPBSET.bit.GPIO61 = 1;
 
 	// End - SPI Magic
+}
+
+void imu_bias_from_flash(Imu *target_imu){
+//	*target_imu = imu_flash;
+	// todo: how to write to flash?
+}
+
+void imu_bias_to_flash(const Imu *source_imu){
+//	imu_flash = *source_imu;
+	// todo: how to read from flash?
 }
 
 /*

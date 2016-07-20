@@ -18,7 +18,10 @@
 Int main() {
 	System_printf("Starting...\n");
 
+	// TODO: Start clocks after init task is finished.
+	clock_heartbeat_start();
 	clock_mainloop_start();
+	clock_ultrasonic_start();
 
 	BIOS_start(); /* does not return */
 	return (0);

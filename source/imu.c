@@ -22,6 +22,11 @@ static uint16_t count_to_read, read_cycle;
 
 static uint16_t data_tx; // String to be sent via SPI (Prepared to load into TxBuffer)
 
+void imu_calibrate(Imu *imu_target) {
+	// todo: Compute IMU calibration and safe to imu_target.
+
+}
+
 void imu_init() {
 	// Initialize SPI
 	System_printf("Initializing IMU\n");
@@ -37,7 +42,7 @@ void imu_init() {
 
 void imu_init_spia() {
 	// Setup the Highspeed GPIO Pins (GPIO68-61)
-	init_spiagpio_hs();
+	imu_init_spiagpio_hs();
 
 	// SPIASTE Pin has to be controled manually, for correct operation.
 	EALLOW;
@@ -304,7 +309,7 @@ Bool imu_test(void) {
 /// GPIO60: SPICLK  ... Clock (asynchron), controlled by Master
 /// GPIO61: SPISTE  ... Transmit Enable (=FALSE)
 /// Edited by: Tommy Schmidt, 15.06.2016
-void init_spiagpio_hs() {
+void imu_init_spiagpio_hs() {
 	EALLOW;
 
 	/* Enable internal pull-up for the selected pins */

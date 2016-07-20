@@ -14,10 +14,12 @@ typedef struct {
 /*
  * Prototypes.
  */
+void imu_calibrate(Imu *imu_target);
+
 void imu_init();
 void imu_init_registers();
 void imu_init_spia();
-void init_spiagpio_hs();
+void imu_init_spiagpio_hs();
 
 void imu_read();
 char imu_read_byte(char reg);

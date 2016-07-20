@@ -8,7 +8,9 @@
 #include "F28x_Project.h"
 
 #include "cla.h"
+#include "clocks.h"
 #include "datafusion.h"
+#include "events.h"
 #include "globals.h"
 #include "imu.h"
 #include "led.h"
@@ -32,12 +34,14 @@ void task_cla_func(UArg a0, UArg a1) {
 	/*
 	 * This task just initializes the CLA related stuff.
 	 */
+	Event_post(event_init_system, Event_Init_Cla);
 }
 
 void task_control_func(UArg a0, UArg a1){
 	System_printf("Task control init.\n");
 	// todo: Initialize the control algorithm.
 
+	Event_post(event_init_system, Event_Init_Control);
 	while (1) {
 		Semaphore_pend(semaphore_control, BIOS_WAIT_FOREVER);
 		// todo: Run the control algorithm.
@@ -67,12 +71,14 @@ void task_flush_func(UArg a0, UArg a1) {
 
 void task_imu_func(UArg a0, UArg a1) {
 	System_printf("Starting IMU task\n");
-	// Initialize SPI module and set up the IMU.
+	// Initialize SPI module and set up the IMU. Calling it twice does no harm,
+		// but ensures a working interface.
 	imu_init();
 
 	// Get calibration data from previous calibration.
 	imu_bias_from_flash(&imu);
 
+	Event_post(event_init_system, Event_Init_Imu);
 	while (1) {
 		Semaphore_pend(semaphore_mainloop, BIOS_WAIT_FOREVER);
 		// Call
@@ -87,6 +93,34 @@ void task_imu_func(UArg a0, UArg a1) {
 
 		// todo: Store IMU raw data in diagnose buffer. Check if buffer is full.
 	}
+}
+
+void task_imu_calibrate_func(UArg a0, UArg a1) {
+	System_printf("Starting IMU calibration task.\n");
+	// Initialize SPI module and set up the IMU. Calling it twice does no harm,
+	// but ensures a working interface.
+	imu_init();
+
+	// todo: Check statemachine. Allow only if MAV is not flying!
+	imu_calibrate(&imu);
+
+	// Archive calibration data in flash for quick restore and persistence.
+	imu_bias_to_flash(&imu);
+}
+
+void task_init_system_func(UArg a0, UArg a1) {
+	/* The following setup of event has to be posted, to unpend the event.
+	 *
+	 */
+	System_printf("Waiting for initialization.\n");
+	Event_pend(event_init_system, events_and_init_system, Event_Id_NONE, BIOS_WAIT_FOREVER);
+	System_printf("Initialization completed.\n");
+
+
+	clock_heartbeat_start();
+	clock_mainloop_start();
+	clock_ultrasonic_start();
+	// todo: start watchdog here.
 }
 
 void task_led_func(UArg a0, UArg a1) {
@@ -107,6 +141,7 @@ void task_motor_func(UArg a0, UArg a1) {
 	 * er die PWM-Ausgänge (EPWM7AEPWM8B, GPIO12-15) vor, initialisiert die zwei ePWMKanäle
 	 * (EPWM7, EPWM8)
 	 */
+	Event_post(event_init_system, Event_Init_Motor);
 	while (1) {
 		Semaphore_pend(semaphore_motor, BIOS_WAIT_FOREVER);
 		System_printf("Task motor runs.");
@@ -141,6 +176,7 @@ void task_remote_func(UArg a0, UArg a1) {
 	System_printf("Task remote init.\n");
 	// TODO: Initialize UART for remote control
 
+	Event_post(event_init_system, Event_Init_Remote);
 	while (1) {
 		Semaphore_pend(semaphore_remote, BIOS_WAIT_FOREVER);
 
@@ -161,6 +197,7 @@ void task_transmit_msg_func(UArg a0, UArg a1) {
 	 * todo: Initialize the xbee wireless communication module via UART module.
 	 * The latter has to become initialized as well.
 	 */
+	Event_post(event_init_system, Event_Init_Message);
 	while (1) {
 		Semaphore_pend(semaphore_transmit_msg, BIOS_WAIT_FOREVER);
 		// After one transmission got triggered, the queue becomes processed completely.
@@ -177,6 +214,7 @@ void task_ultrasonic_func(UArg a0, UArg a1) {
 	System_printf("Task ultrasonic init.\n");
 	// TODO: Initialize I2C for ultrasonic
 
+	Event_post(event_init_system, Event_Init_Ultrasonic);
 	while (1) {
 		Semaphore_pend(semaphore_ultrasonic, BIOS_WAIT_FOREVER);
 

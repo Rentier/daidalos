@@ -86,6 +86,8 @@ void task_imu_func(UArg a0, UArg a1) {
 
 		// Start CLA for datafusion async.
 		datafusion_fuse_pose_start();
+		//todo: start datafusion POSITION each 5th cycle.
+
 
 		System_printf("IMU:\n");
 		vec3f_print(cpu_to_cla.raw_acc);
@@ -109,8 +111,8 @@ void task_imu_calibrate_func(UArg a0, UArg a1) {
 }
 
 void task_init_system_func(UArg a0, UArg a1) {
-	/* The following setup of event has to be posted, to unpend the event.
-	 *
+	/*
+	 * The following setup of event has to be posted, to unpend the event.
 	 */
 	System_printf("Waiting for initialization.\n");
 	Event_pend(event_init_system, events_and_init_system, Event_Id_NONE, BIOS_WAIT_FOREVER);
@@ -138,7 +140,7 @@ void task_motor_func(UArg a0, UArg a1) {
 	/*
 	 * todo: Initialize PWM - Die Ausgabe der von den Regelungs-Routinen berechneten
 	 * Stellgrößen erfolgt ebenfalls in einem Task. In dessen Initialisierungsphase bereitet
-	 * er die PWM-Ausgänge (EPWM7AEPWM8B, GPIO12-15) vor, initialisiert die zwei ePWMKanäle
+	 * er die PWM-Ausgänge (EPWM7A-EPWM8B, GPIO12-15) vor und initialisiert die zwei ePWMKanäle
 	 * (EPWM7, EPWM8)
 	 */
 	Event_post(event_init_system, Event_Init_Motor);
@@ -191,12 +193,14 @@ void task_remote_func(UArg a0, UArg a1) {
 void task_transmit_msg_func(UArg a0, UArg a1) {
 	System_printf("Task transmit init.\n");
 
-	// Initialize has to happen in transmit, because the reciever on ground does never
-	// know if the quadrotor is active. So the first messaging come from this transmit task.
+	// Initialize has to happen in transmit, because the recieving station on ground does never
+	// know if the quadrotor is active. So the first messaging comes from this transmit task.
 	/*
 	 * todo: Initialize the xbee wireless communication module via UART module.
 	 * The latter has to become initialized as well.
 	 */
+	// todo: Post the first semaphore and queue directly here, to send an alive signal!
+
 	Event_post(event_init_system, Event_Init_Message);
 	while (1) {
 		Semaphore_pend(semaphore_transmit_msg, BIOS_WAIT_FOREVER);
@@ -219,7 +223,7 @@ void task_ultrasonic_func(UArg a0, UArg a1) {
 		Semaphore_pend(semaphore_ultrasonic, BIOS_WAIT_FOREVER);
 
 		/* TODO: Read from ultrasonic, wait until reading is complete
-		 * Update the global state vector
+		 * Write in cpu_to_cla ram for upcoming datafusion.
 		 */
 
 		System_printf("Task ultrasonic runs.");

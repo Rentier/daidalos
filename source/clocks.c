@@ -45,3 +45,5 @@ void clock_ultrasonic_start(void) {
 
 	Clock_start(clock_ultrasonic);
 }
+
+// todo: Function for adapting the ultrasonic clock.

@@ -75,7 +75,7 @@ void CLA_configClaMemory(void) {
 	MemCfgRegs.MSGxINIT.bit.INIT_CPUTOCLA1 = 1;
 	while (MemCfgRegs.MSGxINITDONE.bit.INITDONE_CPUTOCLA1 != 1) {
 	};
-	System_printf("Messageram initialized.\n");
+
 	//
 	// Select LS3RAM to be the programming space for the CLA
 	// First configure the CLA to be the master for LS3 and then

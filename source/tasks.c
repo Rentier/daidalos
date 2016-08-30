@@ -118,6 +118,11 @@ void task_init_system_func(UArg a0, UArg a1) {
 	Event_pend(event_init_system, events_and_init_system, Event_Id_NONE, BIOS_WAIT_FOREVER);
 	System_printf("Initialization completed.\n");
 
+	/* todo: If the system does not reboot after a watchdog reset start the calibration now
+	 * 			and wait until it's done. The watchdog has a register with that information.
+	 * 			ATTENTION: until the bias information aren't saved on flash, the calibration
+	 * 			has to be done, otherwise no bias informations are avialable.
+	 */
 
 	clock_heartbeat_start();
 	clock_mainloop_start();
@@ -222,8 +227,20 @@ void task_ultrasonic_func(UArg a0, UArg a1) {
 	while (1) {
 		Semaphore_pend(semaphore_ultrasonic, BIOS_WAIT_FOREVER);
 
-		/* TODO: Read from ultrasonic, wait until reading is complete
-		 * Write in cpu_to_cla ram for upcoming datafusion.
+		/*
+		 * TODO: Read from ultrasonic, trigger new read cycle. Provide measured data to datafusion POSITION.
+		 * 		 Follow instructions to avoid data race/ conflict:
+		 *			...als erstes den CLA-Task Datenfusion POSTION im MIER-Register
+		 *			des CLA deaktiviert wird. (Hat keinen Einfluss für den
+		 *			Fall der Task läuft bereits). Dann wird 3 Zyklen gewartet
+		 *			(Solange bräuchte ein soeben gestarteter CLA Task, um die
+		 *			Messdaten aus dem Message-RAM zu lesen), danach wird
+		 *			den Message-RAM mit den neuen Messdaten beschrieben,
+		 *			anschließend wird den CLA-Task an selber Stelle reaktiviert
+		 *			[4, S.723] (Sollte der Task in der Zeit an einer anderen Stelle
+		 *			im Programm gestartet worden sein, so wird er nach der
+		 *			Reaktivierung unbeeinflusst ausgeführt).
+		 *
 		 */
 
 		System_printf("Task ultrasonic runs.");
